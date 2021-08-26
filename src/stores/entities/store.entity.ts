@@ -11,6 +11,6 @@ export class Store {
     @Field(type => String)
     address: string;
   
-    @Field(type => String)
+    @Field(type => String) 
     ownersName: string;
 }
