@@ -4,6 +4,7 @@ import { ConfigModule } from '@nestjs/config';
 import { GraphQLModule } from '@nestjs/graphql';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { StoresModule } from './stores/stores.module';
+import { Store } from './stores/entities/store.entity';
 
 @Module({
   imports: [
@@ -21,14 +22,15 @@ import { StoresModule } from './stores/stores.module';
       })
     }),
     TypeOrmModule.forRoot({
-      "type": "postgres",
-      "host": process.env.DB_HOST,
-      "port": +process.env.DB_PORT,
-      "username": process.env.DB_USERNAME,
-      "password": process.env.DB_PASSWORD,
-      "database": process.env.DB_DATABASE,
-      "synchronize": true,
-      "logging": true
+      type: "postgres",
+      host: process.env.DB_HOST,
+      port: +process.env.DB_PORT,
+      username: process.env.DB_USERNAME,
+      password: process.env.DB_PASSWORD,
+      database: process.env.DB_DATABASE,
+      synchronize: process.env.NODE_ENV !== 'prod',
+      logging: process.env.NODE_ENV !== 'prod',
+      entities: [Store]
     }),
     GraphQLModule.forRoot({
     autoSchemaFile: true}),
