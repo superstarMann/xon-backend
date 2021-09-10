@@ -22,7 +22,7 @@ import { JwtMiddleware } from './jwt/jwt.middleware';
         DB_USERNAME:Joi.string().required(),
         DB_PASSWORD:Joi.string().required(),
         DB_DATABASE:Joi.string().required(),
-        PRIVATE_TOKEN: Joi.string().required()
+        PRIVATE_KEY: Joi.string().required()
       })
     }),
     TypeOrmModule.forRoot({
@@ -37,9 +37,11 @@ import { JwtMiddleware } from './jwt/jwt.middleware';
       entities: [User]
     }),
     GraphQLModule.forRoot({
-    autoSchemaFile: true}),
+    autoSchemaFile: true,
+    context: ({ req }) => ({ user: req['user'] }),
+  }),
     JwtModule.forRoot({
-      privateKey: process.env.PRIVATE_TOKEN
+      privateKey: process.env.PRIVATE_KEY
     }),
     UsersModule,
     CommonModule,
