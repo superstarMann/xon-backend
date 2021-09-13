@@ -3,16 +3,15 @@ import { CreateDateColumn, PrimaryGeneratedColumn, UpdateDateColumn } from "type
 
 @ObjectType()
 export class CoreEntity {
-    @PrimaryGeneratedColumn()
-    @Field(() => Number)
-    id: number
+  @PrimaryGeneratedColumn()
+  @Field(type => Number)
+  id: number;
 
-    @CreateDateColumn()
-    @Field(() => Date)
-    createAt: Date;
+  @CreateDateColumn()
+  @Field(type => Date)
+  createdAt: Date;
 
-    @UpdateDateColumn()
-    @Field(() => Date)
-    updateAt: Date;
-
+  @UpdateDateColumn()
+  @Field(type => Date)
+  updatedAt: Date;
 }

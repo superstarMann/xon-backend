@@ -1,35 +1,44 @@
 import { InternalServerErrorException } from "@nestjs/common";
 import { Field, InputType, ObjectType, registerEnumType } from "@nestjs/graphql";
 import { CoreEntity } from "src/common/entities/core.entity";
-import { BeforeInsert, Column, Entity } from "typeorm";
+import { BeforeInsert, BeforeUpdate, Column, Entity } from "typeorm";
 import * as bcrypt from 'bcrypt'
 import { IsEmail, IsEnum, IsString } from "class-validator";
 
 
-enum UserRole {User, Guarder}
+enum UserRole {
+  User,
+  Guarder
+}
 
-registerEnumType(UserRole, {name: 'UserRole'})
+registerEnumType(UserRole, { name: 'UserRole' });
 
-@InputType({isAbstract: true})
+@InputType({ isAbstract: true })
 @ObjectType()
 @Entity()
 export class User extends CoreEntity {
-    @Column()
-    @Field(() => String)
-    @IsEmail()
-    email: string;
+  @Column()
+  @Field(type => String)
+  @IsEmail()
+  email: string;
 
-    @Column()
-    @Field(() => String)
-    password: string;
+  @Column({ select: false })
+  @Field(type => String)
+  password: string;
 
-    @Column({type: 'enum', enum: UserRole})
-    @Field(() => UserRole)
-    @IsEnum(UserRole)
-    role: UserRole
+  @Column({ type: 'enum', enum: UserRole })
+  @Field(type => UserRole)
+  @IsEnum(UserRole)
+  role: UserRole;
 
-    @BeforeInsert()
-    async hashPassword(): Promise<void> {
+  @Column({ default: false })
+  @Field(type => Boolean)
+  verified: boolean;
+
+  @BeforeInsert()
+  @BeforeUpdate()
+  async hashPassword(): Promise<void> {
+    if (this.password) {
       try {
         this.password = await bcrypt.hash(this.password, 10);
       } catch (e) {
@@ -37,14 +46,15 @@ export class User extends CoreEntity {
         throw new InternalServerErrorException();
       }
     }
-  
-    async checkPassword(aPassword: string): Promise<boolean> {
-      try {
-        const ok = await bcrypt.compare(aPassword, this.password);
-        return ok;
-      } catch (e) {
-        console.log(e);
-        throw new InternalServerErrorException();
-      }
+  }
+
+  async checkPassword(aPassword: string): Promise<boolean> {
+    try {
+      const ok = await bcrypt.compare(aPassword, this.password);
+      return ok;
+    } catch (e) {
+      console.log(e);
+      throw new InternalServerErrorException();
     }
   }
+}
