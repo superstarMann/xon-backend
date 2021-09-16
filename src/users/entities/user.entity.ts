@@ -9,7 +9,7 @@ import { Guader } from "src/guaders/entities/guader.entity";
 
 export enum UserRole {
   User = 'User',
-  Guarder = 'Guader'
+  Guader = 'Guader'
 }
 
 registerEnumType(UserRole, { name: 'UserRole' });

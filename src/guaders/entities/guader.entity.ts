@@ -2,7 +2,7 @@ import { Field, InputType, ObjectType } from "@nestjs/graphql";
 import { IsOptional, IsString } from "class-validator";
 import { CoreEntity } from "src/common/entities/core.entity";
 import { User } from "src/users/entities/user.entity";
-import { Column, Entity, ManyToOne} from "typeorm";
+import { Column, Entity, ManyToOne, RelationId} from "typeorm";
 import { Country } from "./country.entity";
 
 @InputType('GuaderInputType',{isAbstract: true})
@@ -31,4 +31,7 @@ export class Guader extends CoreEntity {
     @Field(() => User)
     @ManyToOne(() => User, user => user.guaders, {onDelete: 'CASCADE'})
     owner: User
+
+    @RelationId((guader: Guader) => guader.owner)
+    ownerId: number
 }

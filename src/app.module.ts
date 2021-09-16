@@ -12,6 +12,7 @@ import { MailModule } from './mail/mail.module';
 import { Guader } from './guaders/entities/guader.entity';
 import { Country } from './guaders/entities/country.entity';
 import { GuadersModule } from './guaders/guaders.module';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
@@ -58,7 +59,8 @@ import { GuadersModule } from './guaders/guaders.module';
       fromEmail: process.env.MAILGUN_FROM_EMAIL,
     }),
     UsersModule,
-    GuadersModule
+    GuadersModule,
+    AuthModule
   ],
   controllers: [],
   providers: [],
