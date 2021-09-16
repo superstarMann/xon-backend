@@ -42,7 +42,7 @@ export class UserService {
       this.mailService.sendVerificationEmail(user.email, verification.code);
       return { ok: true };
     } catch (e) {
-      return { ok: false, error: "Couldn't create account" };
+      return { ok: false, error: "Couldn't Create Account" };
     }
   }
 
@@ -55,7 +55,7 @@ export class UserService {
       if (!user) {
         return {
           ok: false,
-          error: 'User not found',
+          error: 'User Not Found',
         };
       }
       const passwordCorrect = await user.checkPassword(password);
@@ -74,7 +74,7 @@ export class UserService {
     } catch (error) {
       return {
         ok: false,
-        error,
+        error: `Can't Log User In`,
       };
     }
   }
@@ -102,6 +102,7 @@ export class UserService {
       if (email) {
         user.email = email;
         user.verified = false;
+        await this.verifications.delete({ user: { id: user.id } });
         const verification = await this.verifications.save(
           this.verifications.create({ user }),
         );
@@ -118,7 +119,7 @@ export class UserService {
         ok: true,
       };
     } catch (error) {
-      return { ok: false, error: 'Could not update profile.' };
+      return { ok: false, error: 'Could Not Update Profile.' };
     }
   }
 
@@ -134,9 +135,9 @@ export class UserService {
         await this.verifications.delete(verification.id);
         return { ok: true };
       }
-      return { ok: false, error: 'Verification not found.' };
+      return { ok: false, error: 'Verification Not Found.' };
     } catch (error) {
-      return { ok: false, error };
+      return { ok: false, error: `Could Not Verify Email` };
     }
   }
 }

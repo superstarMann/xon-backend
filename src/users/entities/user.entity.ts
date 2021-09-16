@@ -1,29 +1,31 @@
 import { InternalServerErrorException } from "@nestjs/common";
 import { Field, InputType, ObjectType, registerEnumType } from "@nestjs/graphql";
 import { CoreEntity } from "src/common/entities/core.entity";
-import { BeforeInsert, BeforeUpdate, Column, Entity } from "typeorm";
+import { BeforeInsert, BeforeUpdate, Column, Entity, OneToMany } from "typeorm";
 import * as bcrypt from 'bcrypt'
-import { IsEmail, IsEnum, IsString } from "class-validator";
+import { IsBoolean, IsEmail, IsEnum, IsString } from "class-validator";
+import { Guader } from "src/guaders/entities/guader.entity";
 
 
-enum UserRole {
-  User,
-  Guarder
+export enum UserRole {
+  User = 'User',
+  Guarder = 'Guader'
 }
 
 registerEnumType(UserRole, { name: 'UserRole' });
 
-@InputType({ isAbstract: true })
+@InputType('UserInputType',{ isAbstract: true })
 @ObjectType()
 @Entity()
 export class User extends CoreEntity {
-  @Column()
+  @Column({unique: true})
   @Field(type => String)
   @IsEmail()
   email: string;
 
   @Column({ select: false })
   @Field(type => String)
+  @IsString()
   password: string;
 
   @Column({ type: 'enum', enum: UserRole })
@@ -33,7 +35,12 @@ export class User extends CoreEntity {
 
   @Column({ default: false })
   @Field(type => Boolean)
+  @IsBoolean()
   verified: boolean;
+
+  @Field(() => [Guader])
+  @OneToMany(() => Guader, guader => guader.owner)
+  guaders: Guader[]
 
   @BeforeInsert()
   @BeforeUpdate()
