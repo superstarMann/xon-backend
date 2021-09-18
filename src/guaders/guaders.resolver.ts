@@ -1,9 +1,11 @@
 import { Resolver, Query, Args, Mutation, ResolveField, Int, Parent } from '@nestjs/graphql';
+import { InjectRepository } from '@nestjs/typeorm';
 import { AuthUser } from 'src/auth/auth-user.decorator';
 import { Role } from 'src/auth/role.decorator';
 import { User } from 'src/users/entities/user.entity';
 import { AllCountriesOutput } from './dto/all-countries.dto';
 import { CountryInput, CountryOutput } from './dto/country.dto';
+import { CreateDishInput, CreateDishOutput } from './dto/create-dish.entity';
 import { CreateGuaderInput, CreateGuaderOutput } from './dto/create-guader.dto';
 import { DeleteGuaderInput, DeleteGuaderOutput } from './dto/delete-guader.dto';
 import { EditGuaderInput, EditGuaderOutput } from './dto/edit-guader.dto';
@@ -11,6 +13,7 @@ import { GuaderInput, GuaderOutput } from './dto/guader.dto';
 import { GuadersInput, GuadersOutput } from './dto/guaders.dto';
 import { SearchGuaderInput, SearchGuaderOutput } from './dto/search-guader.dto';
 import { Country } from './entities/country.entity';
+import { Dish } from './entities/dish.entity';
 import { Guader } from './entities/guader.entity';
 import { GuaderService } from './guaders.service';
 
@@ -84,5 +87,21 @@ export class CountryResolver{
     country(@Args('input') countryInput : CountryInput): Promise<CountryOutput>{
         return this.guaderService.findCountryBySlug(countryInput)
     }
+}
 
+
+@Resolver(() => Dish)
+export class DishResolver{
+    constructor(
+        private readonly guaderService: GuaderService
+    ){}
+
+    @Mutation(() => CreateDishOutput)
+    @Role(['Guader'])
+    createDish(
+        @AuthUser() owner : User,
+        @Args('input') createDishInput:CreateDishInput
+    ): Promise<CreateDishOutput>{
+        return this.guaderService.createDish(owner, createDishInput)
+    }
 }

@@ -21,7 +21,7 @@ export class Country extends CoreEntity{
     @Field(() => String)
     @Column({unique: true})
     @IsString()
-    slug: string
+    slug: string 
 
     @Field(() => [Guader], {nullable: true})
     @OneToMany(() => Guader, guader => guader.country)

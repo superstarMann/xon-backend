@@ -13,6 +13,7 @@ import { Guader } from './guaders/entities/guader.entity';
 import { Country } from './guaders/entities/country.entity';
 import { GuadersModule } from './guaders/guaders.module';
 import { AuthModule } from './auth/auth.module';
+import { Dish } from './guaders/entities/dish.entity';
 
 @Module({
   imports: [
@@ -44,7 +45,7 @@ import { AuthModule } from './auth/auth.module';
       database: process.env.DB_NAME,
       synchronize: process.env.NODE_ENV !== 'prod',
       logging: process.env.NODE_ENV !== 'prod',
-      entities: [User, Verification, Guader, Country],
+      entities: [User, Verification, Guader, Country, Dish],
     }),
     GraphQLModule.forRoot({
       autoSchemaFile: true,

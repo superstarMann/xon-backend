@@ -4,6 +4,7 @@ import { User } from 'src/users/entities/user.entity';
 import { ILike, Repository } from 'typeorm';
 import { AllCountriesOutput } from './dto/all-countries.dto';
 import { CountryInput, CountryOutput } from './dto/country.dto';
+import { CreateDishInput, CreateDishOutput } from './dto/create-dish.entity';
 import { CreateGuaderInput, CreateGuaderOutput } from './dto/create-guader.dto';
 import { DeleteGuaderInput, DeleteGuaderOutput } from './dto/delete-guader.dto';
 import { EditGuaderInput, EditGuaderOutput } from './dto/edit-guader.dto';
@@ -11,6 +12,7 @@ import { GuaderInput, GuaderOutput } from './dto/guader.dto';
 import { GuadersInput, GuadersOutput } from './dto/guaders.dto';
 import { SearchGuaderInput, SearchGuaderOutput } from './dto/search-guader.dto';
 import { Country } from './entities/country.entity';
+import { Dish } from './entities/dish.entity';
 import { Guader } from './entities/guader.entity';
 import { CountryRepository } from './repositories/country.repository';
 
@@ -19,6 +21,8 @@ export class GuaderService {
     constructor(
         @InjectRepository(Guader) 
         private readonly guaders: Repository<Guader>,
+        @InjectRepository(Dish)
+        private readonly dishes: Repository<Dish>,
         private readonly countries: CountryRepository
         
     ){}
@@ -185,7 +189,7 @@ export class GuaderService {
 
     async findGuaderById({guaderId}: GuaderInput): Promise<GuaderOutput>{
       try{
-        const guader = await this.guaders.findOne(guaderId);
+        const guader = await this.guaders.findOne(guaderId, {relations: ['menu']});
         if(!guader){
           return{
             ok: false,
@@ -223,7 +227,36 @@ export class GuaderService {
         return {
           ok: false,
           error: `Could Not Find Guader`
-        }
+        };
       }
     }
+
+    async createDish(owner: User, createDishInput: CreateDishInput):Promise<CreateDishOutput>{
+      try{
+        const guader = await this.guaders.findOne(createDishInput.guaderId);
+        if(!guader){
+          return{
+            ok: false,
+            error: `Guader not found`
+          };
+        }
+        if(owner.id !== guader.ownerId){
+          return{
+            ok: false,
+            error: `You Can't Do That`
+          };
+        }
+        await this.dishes.save(this.dishes.create({...createDishInput, guader}))
+        return{
+          ok: true
+        }
+      }catch(error){
+        console.log(error)
+        return{
+          ok: false,
+          error: `Could Not Create Dish`
+        };
+      }
+    }
+
     }
