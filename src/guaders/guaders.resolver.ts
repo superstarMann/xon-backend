@@ -3,9 +3,13 @@ import { AuthUser } from 'src/auth/auth-user.decorator';
 import { Role } from 'src/auth/role.decorator';
 import { User } from 'src/users/entities/user.entity';
 import { AllCountriesOutput } from './dto/all-countries.dto';
+import { CountryInput, CountryOutput } from './dto/country.dto';
 import { CreateGuaderInput, CreateGuaderOutput } from './dto/create-guader.dto';
 import { DeleteGuaderInput, DeleteGuaderOutput } from './dto/delete-guader.dto';
 import { EditGuaderInput, EditGuaderOutput } from './dto/edit-guader.dto';
+import { GuaderInput, GuaderOutput } from './dto/guader.dto';
+import { GuadersInput, GuadersOutput } from './dto/guaders.dto';
+import { SearchGuaderInput, SearchGuaderOutput } from './dto/search-guader.dto';
 import { Country } from './entities/country.entity';
 import { Guader } from './entities/guader.entity';
 import { GuaderService } from './guaders.service';
@@ -14,11 +18,6 @@ import { GuaderService } from './guaders.service';
 @Resolver(() => Guader)
 export class GuaderResolver {
     constructor(private readonly guaderService: GuaderService){}
-    
-    @Query(() => [Guader])
-    guaders(): Promise<Guader[]>{
-        return this.guaderService.getAll()
-    }
 
     @Mutation(() => CreateGuaderOutput)
     @Role(['Guader'])
@@ -47,6 +46,21 @@ export class GuaderResolver {
         return this.guaderService.deleteGuader(owner, deleteGuaderInput);
     }
 
+    @Query(() => GuadersOutput)
+    allguader(@Args('input') guadersInput: GuadersInput): Promise<GuadersOutput>{
+        return this.guaderService.allGuaders(guadersInput)
+    }
+
+    @Query(() => GuaderOutput)
+    guader(@Args('input') guaderInput: GuaderInput):Promise<GuaderOutput>{
+        return this.guaderService.findGuaderById(guaderInput)
+    }
+    
+    @Query(() => SearchGuaderOutput)
+    searchGuader(@Args('input') searchGuaderInput: SearchGuaderInput): Promise<SearchGuaderOutput>{
+        return this.guaderService.searchGuaderByName(searchGuaderInput)
+    }
+
 }
 
 
@@ -64,6 +78,11 @@ export class CountryResolver{
     @Query(() => AllCountriesOutput)
     allCountries(): Promise<AllCountriesOutput>{
         return this.guaderService.allCountries()
+    }
+
+    @Query(() => CountryOutput)
+    country(@Args('input') countryInput : CountryInput): Promise<CountryOutput>{
+        return this.guaderService.findCountryBySlug(countryInput)
     }
 
 }

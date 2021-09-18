@@ -1,11 +1,15 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from 'src/users/entities/user.entity';
-import { Repository } from 'typeorm';
+import { ILike, Repository } from 'typeorm';
 import { AllCountriesOutput } from './dto/all-countries.dto';
+import { CountryInput, CountryOutput } from './dto/country.dto';
 import { CreateGuaderInput, CreateGuaderOutput } from './dto/create-guader.dto';
 import { DeleteGuaderInput, DeleteGuaderOutput } from './dto/delete-guader.dto';
 import { EditGuaderInput, EditGuaderOutput } from './dto/edit-guader.dto';
+import { GuaderInput, GuaderOutput } from './dto/guader.dto';
+import { GuadersInput, GuadersOutput } from './dto/guaders.dto';
+import { SearchGuaderInput, SearchGuaderOutput } from './dto/search-guader.dto';
 import { Country } from './entities/country.entity';
 import { Guader } from './entities/guader.entity';
 import { CountryRepository } from './repositories/country.repository';
@@ -129,4 +133,97 @@ export class GuaderService {
       return this.guaders.count({country})
     }
 
+    async findCountryBySlug({slug, page}: CountryInput): Promise<CountryOutput>{
+      try{
+        const country = await this.countries.findOne({slug})
+        if(!country){
+          return{
+            ok: false,
+            error: `Country Not Found`
+          };
+        }
+        const guaders = await this.guaders.find({
+          where: {country},
+          take: 25,
+          skip: (page-1) * 25
+        })
+        country.guaders = guaders
+        const totalResults = await this.countGuaders(country);
+        return{
+          ok: true,
+          country,
+          guaders,
+          totalPages: Math.ceil(totalResults / 25),
+        }
+      }catch(error){
+        return{
+          ok: false,
+          error: `Could Not Load Category`
+        };
+      }
+    }
+
+    async allGuaders({page}: GuadersInput): Promise<GuadersOutput>{
+      try{
+        const [guaders, totalResults] = await this.guaders.findAndCount({
+          skip: (page - 1) * 25,
+          take: 25
+        })
+        return{
+          ok: true,
+          results: guaders,
+          totalPages: Math.ceil(totalResults / 25),
+          totalResults
+        }
+      }catch(error){
+        return{
+          ok: false,
+          error: `Could Not Load Guaders`,
+        }
+      }
+    }
+
+    async findGuaderById({guaderId}: GuaderInput): Promise<GuaderOutput>{
+      try{
+        const guader = await this.guaders.findOne(guaderId);
+        if(!guader){
+          return{
+            ok: false,
+            error: `Guader Not Found`
+          };
+        }
+        return{
+          ok: true,
+          guader
+        }
+      }catch(error){
+        return{
+          ok:  false,
+          error: `Could Not Find Guader`
+        };
+      }
+    }
+
+    async searchGuaderByName({query, page}: SearchGuaderInput):Promise<SearchGuaderOutput>{
+      try{
+        const [guaders, totalResults] = await this.guaders.findAndCount({
+          where:{
+            name: ILike(`%${query}%`)
+          },
+          skip: (page -1) * 25,
+          take: 25
+        });
+        return{
+          ok:true,
+          guaders,
+          totalPages: Math.ceil(totalResults /25),
+          totalResults
+        }
+      }catch(error){
+        return {
+          ok: false,
+          error: `Could Not Find Guader`
+        }
+      }
+    }
     }

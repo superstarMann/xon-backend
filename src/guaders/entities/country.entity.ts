@@ -23,7 +23,7 @@ export class Country extends CoreEntity{
     @IsString()
     slug: string
 
-    @Field(() => [Guader])
+    @Field(() => [Guader], {nullable: true})
     @OneToMany(() => Guader, guader => guader.country)
     guaders: Guader[] 
 }
