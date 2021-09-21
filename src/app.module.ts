@@ -9,11 +9,11 @@ import { JwtModule } from './jwt/jwt.module';
 import { JwtMiddleware } from './jwt/jwt.middleware';
 import { Verification } from './users/entities/verification.entity';
 import { MailModule } from './mail/mail.module';
-import { Guader } from './guaders/entities/guader.entity';
-import { Country } from './guaders/entities/country.entity';
-import { GuadersModule } from './guaders/guaders.module';
+import { ShareMusle } from './sharemusles/entities/sharemusle.entity';
+import { Country } from './sharemusles/entities/country.entity';
+import { ShareMuslesModule } from './sharemusles/sharemusles.module';
 import { AuthModule } from './auth/auth.module';
-import { Dish } from './guaders/entities/dish.entity';
+import { Dish } from './sharemusles/entities/dish.entity';
 
 @Module({
   imports: [
@@ -45,7 +45,7 @@ import { Dish } from './guaders/entities/dish.entity';
       database: process.env.DB_NAME,
       synchronize: process.env.NODE_ENV !== 'prod',
       logging: process.env.NODE_ENV !== 'prod',
-      entities: [User, Verification, Guader, Country, Dish],
+      entities: [User, Verification, ShareMusle, Country, Dish],
     }),
     GraphQLModule.forRoot({
       autoSchemaFile: true,
@@ -60,8 +60,8 @@ import { Dish } from './guaders/entities/dish.entity';
       fromEmail: process.env.MAILGUN_FROM_EMAIL,
     }),
     UsersModule,
-    GuadersModule,
-    AuthModule
+    ShareMuslesModule,
+    AuthModule,
   ],
   controllers: [],
   providers: [],

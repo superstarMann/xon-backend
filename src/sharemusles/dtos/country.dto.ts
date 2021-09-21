@@ -1,6 +1,6 @@
 import { Field, InputType, ObjectType } from "@nestjs/graphql";
 import { Country } from "../entities/country.entity";
-import { Guader } from "../entities/guader.entity";
+import { ShareMusle } from "../entities/sharemusle.entity";
 import { PaginationInput, PaginationOutput } from "./pagination.dto";
 
 @InputType()
@@ -11,8 +11,8 @@ export class CountryInput extends PaginationInput {
 
 @ObjectType()
 export class CountryOutput extends PaginationOutput{
-    @Field(() => [Guader], {nullable: true})
-    guaders?: Guader[];
+    @Field(() => [ShareMusle], {nullable: true})
+    shareMusles?: ShareMusle[];
 
     @Field(() => Country, {nullable: true})
     country?: Country

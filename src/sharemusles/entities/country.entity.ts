@@ -2,7 +2,7 @@ import { Field, InputType, ObjectType } from "@nestjs/graphql";
 import { IsString } from "class-validator";
 import { CoreEntity } from "src/common/entities/core.entity";
 import { Column, Entity, OneToMany } from "typeorm";
-import { Guader } from "./guader.entity";
+import { ShareMusle } from "./sharemusle.entity";
 
 @InputType('CountryInputType', {isAbstract: true})
 @ObjectType()
@@ -23,7 +23,7 @@ export class Country extends CoreEntity{
     @IsString()
     slug: string 
 
-    @Field(() => [Guader], {nullable: true})
-    @OneToMany(() => Guader, guader => guader.country)
-    guaders: Guader[] 
+    @Field(() => [ShareMusle], {nullable: true})
+    @OneToMany(() => ShareMusle, sharemusle => sharemusle.country)
+    shareMusles: ShareMusle[] 
 }

@@ -9,7 +9,7 @@ import { Dish } from "./dish.entity";
 @InputType('GuaderInputType',{isAbstract: true})
 @ObjectType()
 @Entity()
-export class Guader extends CoreEntity {
+export class ShareMusle extends CoreEntity {
     @Field(type => String)
     @Column()
     @IsString()
@@ -26,17 +26,17 @@ export class Guader extends CoreEntity {
     coverImg: string
 
     @Field(() => Country, {nullable: true})
-    @ManyToOne(() => Country, country => country.guaders, {nullable: true, onDelete: 'SET NULL'})
+    @ManyToOne(() => Country, country => country.shareMusles, {nullable: true, onDelete: 'SET NULL'})
     country: Country
 
     @Field(() => User)
-    @ManyToOne(() => User, user => user.guaders, {onDelete: 'CASCADE'})
+    @ManyToOne(() => User, user => user.sharemusles, {onDelete: 'CASCADE'})
     owner: User
 
-    @RelationId((guader: Guader) => guader.owner)
+    @RelationId((shareMusle: ShareMusle) => shareMusle.owner)
     ownerId: number
 
     @Field(() => [Dish])
-    @OneToMany(()=> Dish, dish => dish.guader)
+    @OneToMany(()=> Dish, dish => dish.shareMusle)
     menu: Dish[];
 }

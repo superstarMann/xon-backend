@@ -1,12 +1,12 @@
 import { Field, InputType, ObjectType, PickType } from "@nestjs/graphql";
 import { CoreOutput } from "src/common/dtos/output.dto";
-import { EditGuaderInput } from "./edit-guader.dto";
+import { EditShareMusleInput } from "./edit-sharemusle.dto";
 
 @InputType()
-export class DeleteGuaderInput {
+export class DeleteShareMusleInput {
     @Field(() => Number)
-    guaderId: number
+    shareMusleId: number
 }
 
 @ObjectType()
-export class DeleteGuaderOutput extends CoreOutput{}
+export class DeleteShareMusleOutput extends CoreOutput{}

@@ -4,8 +4,7 @@ import { CoreEntity } from "src/common/entities/core.entity";
 import { BeforeInsert, BeforeUpdate, Column, Entity, OneToMany } from "typeorm";
 import * as bcrypt from 'bcrypt'
 import { IsBoolean, IsEmail, IsEnum, IsString } from "class-validator";
-import { Guader } from "src/guaders/entities/guader.entity";
-
+import { ShareMusle } from "src/sharemusles/entities/sharemusle.entity";
 
 export enum UserRole {
   User = 'User',
@@ -38,9 +37,9 @@ export class User extends CoreEntity {
   @IsBoolean()
   verified: boolean;
 
-  @Field(() => [Guader])
-  @OneToMany(() => Guader, guader => guader.owner)
-  guaders: Guader[]
+  @Field(() => [ShareMusle])
+  @OneToMany(() => ShareMusle, sharemusle => sharemusle.owner)
+  sharemusles: ShareMusle[]
 
   @BeforeInsert()
   @BeforeUpdate()

@@ -1,9 +1,8 @@
 import { Field, InputType, ObjectType } from "@nestjs/graphql";
 import { IsNumber, IsString } from "class-validator";
 import { CoreEntity } from "src/common/entities/core.entity";
-import { User } from "src/users/entities/user.entity";
 import { Column, Entity, ManyToOne, RelationId } from "typeorm";
-import { Guader } from "./guader.entity";
+import { ShareMusle } from "./sharemusle.entity";
 
 @InputType('DishChoiceInputType', {isAbstract: true})
 @ObjectType()
@@ -42,22 +41,22 @@ export class Dish extends CoreEntity {
     @IsNumber()
     price: number;
 
-    @Field(() => String)
-    @Column()
+    @Field(() => String, {nullable: true})
+    @Column({nullable: true})
     @IsString()
-    photo: string;
+    photo?: string;
 
     @Field(() => String)
     @Column()
     @IsString()
     description: string;
 
-    @Field(() => Guader, {nullable: true})
-    @ManyToOne( () => Guader, guader => guader.menu, {onDelete :'CASCADE'})
-    guader: Guader;
+    @Field(() => ShareMusle, {nullable: true})
+    @ManyToOne( () => ShareMusle, shareMusle => shareMusle.menu, {onDelete :'CASCADE'})
+    shareMusle: ShareMusle;
 
-    @RelationId((dish: Dish) => dish.guader)
-    guaderId: number
+    @RelationId((dish: Dish) => dish.shareMusle)
+    shareMusleId: number
     
     @Field(() => [DishOption], {nullable: true}) //small entity instead
     @Column({type: 'json', nullable: true})
