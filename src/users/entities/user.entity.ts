@@ -5,6 +5,7 @@ import { BeforeInsert, BeforeUpdate, Column, Entity, OneToMany } from "typeorm";
 import * as bcrypt from 'bcrypt'
 import { IsBoolean, IsEmail, IsEnum, IsString } from "class-validator";
 import { ShareMusle } from "src/sharemusles/entities/sharemusle.entity";
+import { Order } from "src/orders/entities/order.entity";
 
 export enum UserRole {
   User = 'User',
@@ -40,6 +41,14 @@ export class User extends CoreEntity {
   @Field(() => [ShareMusle])
   @OneToMany(() => ShareMusle, sharemusle => sharemusle.owner)
   sharemusles: ShareMusle[]
+
+  @Field(() => [Order])
+  @OneToMany(() => Order, order => order.customer)
+  orders: Order[]
+
+  @Field(() => [Order])
+  @OneToMany(() => Order, order => order.driver)
+  rides: Order[]
 
   @BeforeInsert()
   @BeforeUpdate()

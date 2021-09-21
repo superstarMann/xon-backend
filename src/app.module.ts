@@ -14,6 +14,8 @@ import { Country } from './sharemusles/entities/country.entity';
 import { ShareMuslesModule } from './sharemusles/sharemusles.module';
 import { AuthModule } from './auth/auth.module';
 import { Dish } from './sharemusles/entities/dish.entity';
+import { OrdersModule } from './orders/orders.module';
+import { Order } from './orders/entities/order.entity';
 
 @Module({
   imports: [
@@ -45,7 +47,7 @@ import { Dish } from './sharemusles/entities/dish.entity';
       database: process.env.DB_NAME,
       synchronize: process.env.NODE_ENV !== 'prod',
       logging: process.env.NODE_ENV !== 'prod',
-      entities: [User, Verification, ShareMusle, Country, Dish],
+      entities: [User, Verification, ShareMusle, Country, Dish, Order],
     }),
     GraphQLModule.forRoot({
       autoSchemaFile: true,
@@ -62,6 +64,7 @@ import { Dish } from './sharemusles/entities/dish.entity';
     UsersModule,
     ShareMuslesModule,
     AuthModule,
+    OrdersModule,
   ],
   controllers: [],
   providers: [],
