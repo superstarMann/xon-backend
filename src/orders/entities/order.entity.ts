@@ -1,9 +1,11 @@
 import { Field, Float, InputType, ObjectType, registerEnumType } from "@nestjs/graphql";
+import { IsEnum, IsNumber } from "class-validator";
 import { CoreEntity } from "src/common/entities/core.entity";
 import { Dish } from "src/sharemusles/entities/dish.entity";
 import { ShareMusle } from "src/sharemusles/entities/sharemusle.entity";
 import { User } from "src/users/entities/user.entity";
 import { Column, Entity, JoinTable, ManyToMany, ManyToOne } from "typeorm";
+import { OrderItem } from "./order-item.entity";
 
 export enum OrderStatus{
     Pending = 'Pending', //대기
@@ -29,19 +31,21 @@ export class Order extends CoreEntity{
     
     @Field(() => ShareMusle, {nullable: true})
     @ManyToOne(() => ShareMusle, shareMusle => shareMusle.orders, {onDelete: 'SET NULL', nullable: true})
-    shareMusle: ShareMusle;
+    shareMusle?: ShareMusle;
 
-    @Field(() => [Dish])
-    @ManyToMany(() => Dish)
+    @Field(() => [OrderItem])
+    @ManyToMany(() => OrderItem)
     @JoinTable()
-    dishes: Dish[];
+    items: OrderItem[];
 
-    @Field(() => Float)
-    @Column()
-    total: number;
+    @Field(() => Float, {nullable: true})
+    @Column({nullable: true})
+    @IsNumber()
+    total?: number;
 
     @Field(() => OrderStatus)
-    @Column({type: 'enum', enum: OrderStatus})
+    @Column({type: 'enum', enum: OrderStatus, default: OrderStatus.Pending})
+    @IsEnum(OrderStatus)
     status: OrderStatus
 
 }
