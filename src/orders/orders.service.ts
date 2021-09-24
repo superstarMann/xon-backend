@@ -1,12 +1,17 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { PubSub } from 'graphql-subscriptions';
+import { NEW_GOING_ORDER, NEW_PENDING_ORDER, PUB_SUB } from 'src/jwt/jwt.constants';
 import { Dish } from 'src/sharemusles/entities/dish.entity';
 import { ShareMusle } from 'src/sharemusles/entities/sharemusle.entity';
-import { User } from 'src/users/entities/user.entity';
+import { User, UserRole } from 'src/users/entities/user.entity';
 import { Repository } from 'typeorm';
 import { CreateOrderInput, CreateOrderOutput } from './dtos/create-order.dto';
+import { EditOrderInput, EditOrderOutput } from './dtos/edit-order.dto';
+import { GetOrderInput, GetOrderOuput } from './dtos/get-order.dto';
+import { GetOrdersInput, GetOrdersOutPut } from './dtos/get-orders.dto';
 import { OrderItem } from './entities/order-item.entity';
-import { Order } from './entities/order.entity';
+import { Order, OrderStatus } from './entities/order.entity';
 
 @Injectable()
 export class OrderService {
@@ -18,7 +23,9 @@ export class OrderService {
         @InjectRepository(ShareMusle)
         private readonly shareMusles: Repository<ShareMusle>,
         @InjectRepository(Dish)
-        private readonly dishes: Repository<Dish>
+        private readonly dishes: Repository<Dish>,
+        @Inject(PUB_SUB)
+        private readonly pubsub: PubSub
     ){}
 
     async createOrder(
@@ -71,13 +78,14 @@ export class OrderService {
                 );
                 orderItems.push(orderItem);
             }
-            await this.orders.save(this.orders.create({
+            const order = await this.orders.save(this.orders.create({
                 customer,
                 shareMusle,
                 total: orderFinalPrice,
                 items: orderItems
             }),
         );
+        await this.pubsub.publish(NEW_PENDING_ORDER, {pendingOrders:{order, ownerId: shareMusle.ownerId}})
         return{
             ok: true
          };
@@ -87,6 +95,140 @@ export class OrderService {
                 error: `Could Not Create Order`
             };
         }
+    };
+
+    async getOrders(
+      user: User,
+      {status}:GetOrdersInput):Promise<GetOrdersOutPut>{
+        try{
+          let orders: Order[];
+          if(user.role === UserRole.User){
+            orders = await this.orders.find({
+              where: {
+                customer: user,
+                ...(status && {status})
+              },
+            });
+          }
+          else if(user.role ===  UserRole.Guader){
+            orders = await this.orders.find({
+              where:{
+                driver: user, //warining
+                ...(status && {status})
+              },
+            });
+            const shareMusles = await this.shareMusles.find({
+              where:{
+                owner: user
+              },
+              relations:['orders']
+            });
+            orders = shareMusles.map(shareMusle => shareMusle.orders).flat(1)
+            if(status){
+              orders = orders.filter(order => order.status === status);
+            }
+          }
+          return{
+            ok: true,
+            orders
+          }
+        }catch(error){
+          return{
+            ok:false,
+            error:`Could Not Get Orders`
+          }
+        }
+      };
+
+    canSeeOrder(user: User, order: Order): boolean{
+      let canSee = true;
+        if(user.role === UserRole.User && order.customerId !== user.id){
+          canSee = false;
+        }
+        if(user.role === UserRole.Guader && order.shareMusle.ownerId !== user.id){
+          canSee = false;
+        }
+        return canSee
+    }
+
+    async getOrder(
+      user: User,
+      {id: orderId}: GetOrderInput
+    ):Promise<GetOrderOuput>{
+      try{
+        const order = await this.orders.findOne(orderId, {relations: ['shareMusle']});
+        if(!order){
+          return{
+            ok: false,
+            error: `Order Not Found`
+          };
+        }
+        if(!this.canSeeOrder(user, order)){
+          return{
+            ok: false,
+            error: `You Can't See That`
+          };
+        }
+        return{
+          ok: true,
+          order
+        }
+      }catch(error){
+        return{
+          ok: false,
+          error: `Could Not Get Order`
+        }
+      }
+    };
+
+    async editOrder(
+      user: User,
+      {id: orderId, status}: EditOrderInput
+    ):Promise<EditOrderOutput>{
+      try{
+        const order =await this.orders.findOne(orderId, {relations: ['shareMusle']});
+        if(!order){
+          return{
+            ok: false,
+            error: `Order Not Found`
+          };
+        }
+        if(!this.canSeeOrder(user, order)){
+          return {
+            ok: false,
+            error: `Can't See That`
+          };
+        }
+        let canEdit = true;
+        if(user.role === UserRole.User){
+          canEdit = false;
+        }
+        if(!canEdit){
+          return{
+            ok: false,
+            error: `You Can't Edit That`
+          };
+        }
+        const newOrder = await this.orders.save(
+          {
+            id: orderId,
+            status  
+          });
+          if(user.role === UserRole.Guader){
+            if(status === OrderStatus.Going){
+              await this.pubsub.publish(NEW_GOING_ORDER, {goingOrders: {...order, status}})
+            }
+          }
+        return{
+          ok: true,
+          order
+        }
+      }catch(error){
+        return{
+          ok: false,
+          error: `Could Not Edit Order`
+        }
+      }
     }
 
 }
