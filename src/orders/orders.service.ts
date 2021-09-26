@@ -1,7 +1,7 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { PubSub } from 'graphql-subscriptions';
-import { NEW_GOING_ORDER, NEW_PENDING_ORDER, PUB_SUB } from 'src/jwt/jwt.constants';
+import { NEW_GOING_ORDER, NEW_ORDER_UPDATE, NEW_PENDING_ORDER, PUB_SUB } from 'src/jwt/jwt.constants';
 import { Dish } from 'src/sharemusles/entities/dish.entity';
 import { ShareMusle } from 'src/sharemusles/entities/sharemusle.entity';
 import { User, UserRole } from 'src/users/entities/user.entity';
@@ -10,6 +10,7 @@ import { CreateOrderInput, CreateOrderOutput } from './dtos/create-order.dto';
 import { EditOrderInput, EditOrderOutput } from './dtos/edit-order.dto';
 import { GetOrderInput, GetOrderOuput } from './dtos/get-order.dto';
 import { GetOrdersInput, GetOrdersOutPut } from './dtos/get-orders.dto';
+import { TakeOrderInput, TakeOrderOutput } from './dtos/take-order.dto';
 import { OrderItem } from './entities/order-item.entity';
 import { Order, OrderStatus } from './entities/order.entity';
 
@@ -149,7 +150,7 @@ export class OrderService {
           canSee = false;
         }
         return canSee
-    }
+    };
 
     async getOrder(
       user: User,
@@ -186,7 +187,7 @@ export class OrderService {
       {id: orderId, status}: EditOrderInput
     ):Promise<EditOrderOutput>{
       try{
-        const order =await this.orders.findOne(orderId, {relations: ['shareMusle']});
+        const order = await this.orders.findOne(orderId);
         if(!order){
           return{
             ok: false,
@@ -209,16 +210,17 @@ export class OrderService {
             error: `You Can't Edit That`
           };
         }
-        const newOrder = await this.orders.save(
-          {
-            id: orderId,
-            status  
-          });
+        await this.orders.save({
+          id: orderId,
+          status
+        });
+        const newOrder = {...order, status}
           if(user.role === UserRole.Guader){
             if(status === OrderStatus.Going){
-              await this.pubsub.publish(NEW_GOING_ORDER, {goingOrders: {...order, status}})
+              await this.pubsub.publish(NEW_GOING_ORDER, {goingOrders: newOrder})
             }
           }
+          await this.pubsub.publish(NEW_ORDER_UPDATE, {updateOrders: newOrder})
         return{
           ok: true,
           order
@@ -228,6 +230,31 @@ export class OrderService {
           ok: false,
           error: `Could Not Edit Order`
         }
+      }
+    };
+
+    async takeOrder(driver: User, {id: orderId}: TakeOrderInput): Promise<TakeOrderOutput>{
+      try{
+        const order = await this.orders.findOne(orderId);
+        if(!order){
+          return{
+            ok: false,
+            error: `Order Not Found`
+          };
+        }
+        await this.orders.save({
+          id: orderId,
+          driver
+        })
+        await this.pubsub.publish(NEW_ORDER_UPDATE, {updateOrders: {...order, driver}})
+        return{
+          ok: true
+        }
+      }catch(error){
+        return{
+          ok: false,
+          error: `Could Not Take Order`
+        };
       }
     }
 

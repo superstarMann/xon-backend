@@ -1,6 +1,6 @@
 import { Inject } from '@nestjs/common';
 import { Args, Mutation, Resolver, Query, Subscription } from '@nestjs/graphql';
-import { NEW_GOING_ORDER, NEW_PENDING_ORDER, PUB_SUB } from 'src/jwt/jwt.constants';
+import { NEW_GOING_ORDER, NEW_ORDER_UPDATE, NEW_PENDING_ORDER, PUB_SUB } from 'src/jwt/jwt.constants';
 import { AuthUser } from 'src/auth/auth-user.decorator';
 import { Role } from 'src/auth/role.decorator';
 import { User } from 'src/users/entities/user.entity';
@@ -11,6 +11,8 @@ import { GetOrdersInput, GetOrdersOutPut } from './dtos/get-orders.dto';
 import { Order } from './entities/order.entity';
 import { OrderService } from './orders.service';
 import { PubSub } from 'graphql-subscriptions';
+import { UpdateOrderInput } from './dtos/updates-order.dto';
+import { TakeOrderInput, TakeOrderOutput } from './dtos/take-order.dto';
 
 @Resolver(() => Order)
 export class OrderResolver {
@@ -71,6 +73,37 @@ export class OrderResolver {
     @Role(['Guader'])
     goingOrders(){
         return this.pubSub.asyncIterator(NEW_GOING_ORDER)
+    }
+
+    @Subscription(() => Order,{
+        filter: (
+            {updateOrders: order}: {updateOrders: Order}, 
+            {input}: {input: UpdateOrderInput}, 
+            {user}: {user: User}
+            )=>{
+            if(
+                order.customerId !== user.id &&
+                order.shareMusle.ownerId !== user.id &&
+                order.driverId !== user.id
+            ){
+                return false
+            }
+            return order.id === input.id
+        }
+    })
+    @Role(['Any'])
+    updateOrders(@Args('input') updateOrderInput : UpdateOrderInput){
+        return this.pubSub.asyncIterator(NEW_ORDER_UPDATE);
+    }
+
+    @Mutation(() => TakeOrderOutput)
+    @Role(['Guader'])
+    takeOrder(
+        @AuthUser() driver: User,
+        @Args('input')
+        takeOrderInput: TakeOrderInput
+    ):Promise<TakeOrderOutput>{
+        return this.orderService.takeOrder(driver, takeOrderInput)
     }
 
 }
