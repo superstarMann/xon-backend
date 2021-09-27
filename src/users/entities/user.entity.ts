@@ -6,6 +6,8 @@ import * as bcrypt from 'bcrypt'
 import { IsBoolean, IsEmail, IsEnum, IsString } from "class-validator";
 import { ShareMusle } from "src/sharemusles/entities/sharemusle.entity";
 import { Order } from "src/orders/entities/order.entity";
+import { Payment } from "src/payments/entities/Payments";
+import { userInfo } from "os";
 
 export enum UserRole {
   User = 'User',
@@ -49,6 +51,10 @@ export class User extends CoreEntity {
   @Field(() => [Order])
   @OneToMany(() => Order, order => order.driver)
   rides: Order[]
+
+  @Field(() => [Payment])
+  @OneToMany(() => Payment, payment => payment.user)
+  payments: Payment[];
 
   @BeforeInsert()
   @BeforeUpdate()

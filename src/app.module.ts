@@ -6,7 +6,6 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { UsersModule } from './users/users.module';
 import { User } from './users/entities/user.entity';
 import { JwtModule } from './jwt/jwt.module';
-import { JwtMiddleware } from './jwt/jwt.middleware';
 import { Verification } from './users/entities/verification.entity';
 import { MailModule } from './mail/mail.module';
 import { ShareMusle } from './sharemusles/entities/sharemusle.entity';
@@ -18,6 +17,9 @@ import { OrdersModule } from './orders/orders.module';
 import { Order } from './orders/entities/order.entity';
 import { OrderItem } from './orders/entities/order-item.entity';
 import { CommonModule } from './common/common.module';
+import { Payment } from './payments/entities/Payments';
+import { PaymentModule } from './payments/payments.module';
+import { ScheduleModule } from '@nestjs/schedule';
 
 @Module({
   imports: [
@@ -49,7 +51,7 @@ import { CommonModule } from './common/common.module';
       database: process.env.DB_NAME,
       synchronize: process.env.NODE_ENV !== 'prod',
       logging: process.env.NODE_ENV !== 'prod',
-      entities: [User, Verification, ShareMusle, Country, Dish, Order, OrderItem],
+      entities: [User, Verification, ShareMusle, Country, Dish, Order, OrderItem, Payment],
     }),
     GraphQLModule.forRoot({
       installSubscriptionHandlers: true,
@@ -61,6 +63,7 @@ import { CommonModule } from './common/common.module';
         }
       },
     }),
+    ScheduleModule.forRoot(),
     JwtModule.forRoot({
       privateKey: process.env.PRIVATE_KEY,
     }),
@@ -73,7 +76,8 @@ import { CommonModule } from './common/common.module';
     ShareMuslesModule,
     AuthModule,
     OrdersModule,
-    CommonModule
+    CommonModule,
+    PaymentModule
   ],
   controllers: [],
   providers: [],

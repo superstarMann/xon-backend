@@ -1,7 +1,8 @@
 import { Injectable } from '@nestjs/common';
+import { Cron, Interval } from '@nestjs/schedule';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from 'src/users/entities/user.entity';
-import { ILike, Repository } from 'typeorm';
+import { ILike, LessThan, Repository } from 'typeorm';
 import { AllCountriesOutput } from './dtos/all-countries.dto';
 import { CountryInput, CountryOutput } from './dtos/country.dto';
 import { CreateDishInput, CreateDishOutput } from './dtos/create-dish.dto';
@@ -124,7 +125,10 @@ export class ShareMusleService {
       try{
         const [shareMusles, totalResults] = await this.shareMusles.findAndCount({
           skip: (page - 1) * 25,
-          take: 25
+          take: 25,
+          order:{
+            isPromoted: 'DESC' // isPromoted 우선 (순서 나열)
+          }
         })
         return{
           ok: true,
@@ -322,8 +326,22 @@ export class ShareMusleService {
         return{
           ok: false,
           error: `Could Not Delete Dish`
-        }
+        };
       }
+    };
+
+    @Cron('0 30 23 * * 1-5')
+    async checkPromotedShareMusles() {
+      const shareMusles = await this.shareMusles.find({
+        isPromoted: true, 
+        promotedUntil: LessThan(new Date())
+      });
+      console.log(shareMusles);
+      shareMusles.forEach(async shareMusle => {
+        shareMusle.isPromoted = false;
+        shareMusle.promotedUntil = null;
+        await this.shareMusles.save(shareMusle);
+      })
     }
 
     }
