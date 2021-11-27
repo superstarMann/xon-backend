@@ -13,6 +13,7 @@ import { OrderService } from './orders.service';
 import { PubSub } from 'graphql-subscriptions';
 import { UpdateOrderInput } from './dtos/updates-order.dto';
 import { TakeOrderInput, TakeOrderOutput } from './dtos/take-order.dto';
+import { DeleteOrderInput, DeleteOrderOutput } from './dtos/delete-order.dto';
 
 @Resolver(() => Order)
 export class OrderResolver {
@@ -104,6 +105,14 @@ export class OrderResolver {
         takeOrderInput: TakeOrderInput
     ):Promise<TakeOrderOutput>{
         return this.orderService.takeOrder(driver, takeOrderInput)
+    }
+
+    @Mutation(() => DeleteOrderOutput)
+    @Role(['Any'])
+    deleteOrder(
+        @Args('input') deleteOrderInput: DeleteOrderInput
+    ):Promise<DeleteOrderOutput>{
+        return this.orderService.deleteOrder(deleteOrderInput)
     }
 
 }

@@ -1,7 +1,8 @@
 import { Field, InputType, ObjectType } from "@nestjs/graphql";
 import { IsNumber, IsString } from "class-validator";
 import { CoreEntity } from "src/common/entities/core.entity";
-import { Column, Entity, ManyToOne, RelationId } from "typeorm";
+import { Order } from "src/orders/entities/order.entity";
+import { Column, Entity, ManyToOne, OneToMany, RelationId } from "typeorm";
 import { ShareMusle } from "./sharemusle.entity";
 
 @InputType('DishChoiceInputType', {isAbstract: true})
@@ -54,11 +55,18 @@ export class Dish extends CoreEntity {
     @Field(() => ShareMusle, {nullable: true})
     @ManyToOne( () => ShareMusle, shareMusle => shareMusle.menu, {onDelete :'CASCADE'})
     shareMusle: ShareMusle;
-
+    
     @RelationId((dish: Dish) => dish.shareMusle)
     shareMusleId: number
     
     @Field(() => [DishOption], {nullable: true}) //small entity instead
     @Column({type: 'json', nullable: true})
     options?: DishOption[]
+
+    @Field(() => Order, {nullable: true})
+    @ManyToOne(() => Order, order => order.dishName, {nullable: true})
+    orderName: Order
+
+    @RelationId((dish: Dish) => dish.orderName)
+    orderNameId: number
 }

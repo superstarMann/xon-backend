@@ -11,4 +11,7 @@ export class CreateShareMusleInput extends PickType(ShareMusle, ['address', 'nam
 
 
 @ObjectType()
-export class CreateShareMusleOutput extends CoreOutput{}
+export class CreateShareMusleOutput extends CoreOutput{
+    @Field(() => Number)
+    shareMusleId?: number;
+}

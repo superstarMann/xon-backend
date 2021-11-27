@@ -1,8 +1,8 @@
 import { Field, InputType, ObjectType } from "@nestjs/graphql";
-import { IsOptional, IsString } from "class-validator";
+import { IsEnum, IsString } from "class-validator";
 import { CoreEntity } from "src/common/entities/core.entity";
 import { Order } from "src/orders/entities/order.entity";
-import { Payment } from "src/payments/entities/Payments";
+import { CountrySelect } from "src/users/entities/countryselect.entity";
 import { User } from "src/users/entities/user.entity";
 import { Column, Entity, ManyToOne, OneToMany, RelationId} from "typeorm";
 import { Country } from "./country.entity";
@@ -28,8 +28,13 @@ export class ShareMusle extends CoreEntity {
     coverImg: string
 
     @Field(() => Country, {nullable: true})
-    @ManyToOne(() => Country, country => country.shareMusles, {nullable: true, onDelete: 'SET NULL'})
+    @ManyToOne(() => Country, country => country.shareMusles, {nullable: true, onDelete: 'SET NULL', eager:true})
     country: Country
+
+    @Column({type:'enum', enum: CountrySelect, nullable: true})
+    @Field(() => CountrySelect ,{nullable: true})
+    @IsEnum(CountrySelect)
+    countrySelect: CountrySelect;
 
     @Field(() => User)
     @ManyToOne(() => User, user => user.sharemusles, {onDelete: 'CASCADE'})

@@ -11,6 +11,8 @@ import { DeleteDishInput, DeleteDishOutput } from './dtos/delete-dish.dto';
 import { DeleteShareMusleInput, DeleteShareMusleOutput } from './dtos/delete-sharemusle.dto';
 import { EditDishInput, EditDishOutput } from './dtos/edit-dish.dto';
 import { EditShareMusleInput, EditShareMusleOutput } from './dtos/edit-sharemusle.dto';
+import { MyShareMusleOutput, MyShareMusleInput } from './dtos/my-shareMusle.dto';
+import { MyShareMuslesOutput } from './dtos/my-shareMusles.dto';
 import { SearchShareMusleInput, SearchShareMusleOutput } from './dtos/search-shareMusle.dto';
 import { ShareMusleInput, ShareMusleOutput } from './dtos/shareMusle.dto';
 import { ShareMuslesInput, ShareMuslesOutput } from './dtos/shareMusles.dto';
@@ -48,6 +50,7 @@ export class ShareMusleService {
           await this.shareMusles.save(newShareMusle);
           return {
             ok: true,
+            shareMusleId: newShareMusle.id
           };
         } catch {
           return {
@@ -124,8 +127,8 @@ export class ShareMusleService {
     async allShareMusles({page}: ShareMuslesInput): Promise<ShareMuslesOutput>{
       try{
         const [shareMusles, totalResults] = await this.shareMusles.findAndCount({
-          skip: (page - 1) * 25,
-          take: 25,
+          skip: (page - 1) * 8,
+          take: 8,
           order:{
             isPromoted: 'DESC' // isPromoted 우선 (순서 나열)
           }
@@ -133,13 +136,43 @@ export class ShareMusleService {
         return{
           ok: true,
           results: shareMusles,
-          totalPages: Math.ceil(totalResults / 25),
+          totalPages: Math.ceil(totalResults / 8),
           totalResults
         }
       }catch(error){
         return{
           ok: false,
           error: `Could Not Load ShareMusles`,
+        }
+      }
+    }
+
+    async myShareMusles(owner: User): Promise<MyShareMuslesOutput>{
+      try{
+        const shareMusles = await this.shareMusles.find({owner});
+        return{
+          shareMusles,
+          ok: true
+        }
+      }catch(error){
+        return{
+          ok:false,
+          error:`Could Not Find ShareMusles`
+        }
+      }
+    }
+
+    async myShareMusle(owner: User, {id}: MyShareMusleInput):Promise<MyShareMusleOutput>{
+      try{
+        const shareMusle = await this.shareMusles.findOne({owner, id}, {relations: ['menu', 'orders']});
+        return{
+          shareMusle,
+          ok:true
+        }
+      }catch(error){
+        return {
+          ok: false,
+          error:`Could Not Find ShareMusle`
         }
       }
     }

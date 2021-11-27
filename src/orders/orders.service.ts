@@ -7,6 +7,7 @@ import { ShareMusle } from 'src/sharemusles/entities/sharemusle.entity';
 import { User, UserRole } from 'src/users/entities/user.entity';
 import { Repository } from 'typeorm';
 import { CreateOrderInput, CreateOrderOutput } from './dtos/create-order.dto';
+import { DeleteOrderInput, DeleteOrderOutput } from './dtos/delete-order.dto';
 import { EditOrderInput, EditOrderOutput } from './dtos/edit-order.dto';
 import { GetOrderInput, GetOrderOuput } from './dtos/get-order.dto';
 import { GetOrdersInput, GetOrdersOutPut } from './dtos/get-orders.dto';
@@ -59,7 +60,7 @@ export class OrderService {
                 if (dishOption.extra) {
                   dishFinalPrice = dishFinalPrice + dishOption.extra;
                 } else {
-                  const dishOptionChoice = dishOption.choices.find(
+                  const dishOptionChoice = dishOption.choices?.find(
                     optionChoice => optionChoice.name === itemOption.choice,
                   );
                   if (dishOptionChoice) {
@@ -88,7 +89,8 @@ export class OrderService {
         );
         await this.pubsub.publish(NEW_PENDING_ORDER, {pendingOrders:{order, ownerId: shareMusle.ownerId}})
         return{
-            ok: true
+            ok: true,
+            orderId: order.id
          };
         }catch(error){
             return{
@@ -255,6 +257,27 @@ export class OrderService {
           ok: false,
           error: `Could Not Take Order`
         };
+      }
+    }
+
+    async deleteOrder({orderId}: DeleteOrderInput):Promise<DeleteOrderOutput>{
+      try{
+        const order = await this.orders.findOne(orderId);
+        if(!order){
+          return{
+            ok: false,
+            error: `Order Not Found`
+          };
+        }
+        await this.orders.delete(orderId)
+        return{
+          ok: true
+        }
+      }catch(error){
+        return{
+          ok: false,
+          error
+        }
       }
     }
 

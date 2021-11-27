@@ -1,5 +1,4 @@
 import { Resolver, Query, Args, Mutation, ResolveField, Int, Parent } from '@nestjs/graphql';
-import { InjectRepository } from '@nestjs/typeorm';
 import { AuthUser } from 'src/auth/auth-user.decorator';
 import { Role } from 'src/auth/role.decorator';
 import { User } from 'src/users/entities/user.entity';
@@ -18,6 +17,9 @@ import { Country } from './entities/country.entity';
 import { Dish } from './entities/dish.entity';
 import { ShareMusle } from './entities/sharemusle.entity';
 import { ShareMusleService } from './sharemusles.service';
+import { MyShareMuslesOutput } from './dtos/my-shareMusles.dto';
+import { MyShareMusleOutput, MyShareMusleInput } from './dtos/my-shareMusle.dto';
+
 
 
 @Resolver(() => ShareMusle)
@@ -59,11 +61,25 @@ export class ShareMusleResolver {
     shareMusle(@Args('input') shareMusleInput: ShareMusleInput):Promise<ShareMusleOutput>{
         return this.shareMusleService.findShareMusleById(shareMusleInput)
     }
-    
-    
+        
     @Query(() => SearchShareMusleOutput)
     searchShareMusle(@Args('input') searchShareMusleInput: SearchShareMusleInput): Promise<SearchShareMusleOutput>{
         return this.shareMusleService.searchShareMusleByName(searchShareMusleInput)
+    }
+
+    @Query(() => MyShareMuslesOutput)
+    @Role(['Guader'])
+    myShareMusles(@AuthUser() owner: User): Promise<MyShareMuslesOutput>{
+        return this.shareMusleService.myShareMusles(owner);
+    }
+
+    @Query(() => MyShareMusleOutput)
+    @Role(['Guader'])
+    myShareMusle(
+        @AuthUser() owner : User,
+        @Args('input') myShareMusleInput : MyShareMusleInput
+        ):Promise<MyShareMusleOutput>{
+        return this.shareMusleService.myShareMusle(owner, myShareMusleInput)
     }
 
 }

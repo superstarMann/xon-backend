@@ -7,7 +7,7 @@ import { IsBoolean, IsEmail, IsEnum, IsString } from "class-validator";
 import { ShareMusle } from "src/sharemusles/entities/sharemusle.entity";
 import { Order } from "src/orders/entities/order.entity";
 import { Payment } from "src/payments/entities/Payments";
-import { userInfo } from "os";
+import { CountrySelect } from "./countryselect.entity";
 
 export enum UserRole {
   User = 'User',
@@ -34,6 +34,11 @@ export class User extends CoreEntity {
   @Field(type => UserRole)
   @IsEnum(UserRole)
   role: UserRole;
+
+  @Column({ type: 'enum', enum: CountrySelect , nullable: true})
+  @Field(type => CountrySelect, {nullable: true})
+  @IsEnum(CountrySelect)
+  countrySelect: CountrySelect;
 
   @Column({ default: false })
   @Field(type => Boolean)

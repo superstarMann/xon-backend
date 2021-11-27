@@ -4,7 +4,7 @@ import { CoreEntity } from "src/common/entities/core.entity";
 import { Dish } from "src/sharemusles/entities/dish.entity";
 import { ShareMusle } from "src/sharemusles/entities/sharemusle.entity";
 import { User } from "src/users/entities/user.entity";
-import { Column, Entity, JoinTable, ManyToMany, ManyToOne, RelationId } from "typeorm";
+import { Column, Entity, JoinTable, ManyToMany, ManyToOne, OneToMany, RelationId } from "typeorm";
 import { OrderItem } from "./order-item.entity";
 
 export enum OrderStatus{
@@ -53,5 +53,9 @@ export class Order extends CoreEntity{
     @Column({type: 'enum', enum: OrderStatus, default: OrderStatus.Pending})
     @IsEnum(OrderStatus)
     status: OrderStatus
+
+    @Field(() => [Dish], {nullable: true})
+    @OneToMany(() => Dish, dish => dish.orderName, {nullable: true})
+    dishName?: Dish[]
 
 }

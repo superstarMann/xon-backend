@@ -18,7 +18,7 @@ export class MailService {
       'from',
       `Lee from Guarder <mailgun@${this.options.domain}>`,
     );
-    form.append('to', `seunghunlee1436@gmail.com`);
+    form.append('to', 'wsx94503@naver.com');
     form.append('subject', subject);
     form.append('template', template);
     emailVars.forEach(eVar => form.append(`v:${eVar.key}`, eVar.value));
