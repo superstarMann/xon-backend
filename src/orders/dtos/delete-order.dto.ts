@@ -6,6 +6,6 @@ export class DeleteOrderInput{
     @Field(()=> Number)
     orderId: number
 }
-
+//asdasdasd
 @ObjectType()
 export class DeleteOrderOutput extends CoreOutput{}
