@@ -39,6 +39,7 @@
     "class-validator": "^0.12.2",
     "cross-env": "^7.0.3",
     "form-data": "^4.0.0",
+    "git": "^0.1.5",
     "got": "^11.8.2",
     "graphql": "^15.5.1",
     "graphql-subscriptions": "^1.2.1",
