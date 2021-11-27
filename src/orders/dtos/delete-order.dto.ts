@@ -8,4 +8,6 @@ export class DeleteOrderInput{
 }
 
 @ObjectType()
-export class DeleteOrderOutput extends CoreOutput{}
+export class DeleteOrderOutput extends CoreOutput{
+    
+}
