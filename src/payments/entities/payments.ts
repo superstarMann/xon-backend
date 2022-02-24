@@ -10,7 +10,7 @@ import { Column, Entity, ManyToOne, RelationId } from "typeorm";
 export class Payment extends CoreEntity{
     @Field(() => String, {nullable: true})
     @Column()
-    transactionId: string
+    transactionId: string;
 
     @Field(() => User)
     @ManyToOne(() => User, user => user.payments)
