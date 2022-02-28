@@ -17,8 +17,6 @@ import { OrdersModule } from './orders/orders.module';
 import { Order } from './orders/entities/order.entity';
 import { OrderItem } from './orders/entities/order-item.entity';
 import { CommonModule } from './common/common.module';
-import { Payment } from './payments/entities/Payments';
-import { PaymentModule } from './payments/payments.module';
 import { ScheduleModule } from '@nestjs/schedule';
 import { UploadsModule } from './uploads/uploads.module';
 
@@ -52,7 +50,7 @@ import { UploadsModule } from './uploads/uploads.module';
       database: process.env.DB_NAME,
       synchronize: process.env.NODE_ENV !== 'prod',
       logging: process.env.NODE_ENV !== 'prod',
-      entities: [User, Verification, ShareMusle, Country, Dish, Order, OrderItem, Payment],
+      entities: [User, Verification, ShareMusle, Country, Dish, Order, OrderItem],
     }),
     GraphQLModule.forRoot({
       installSubscriptionHandlers: true,
@@ -78,7 +76,6 @@ import { UploadsModule } from './uploads/uploads.module';
     AuthModule,
     OrdersModule,
     CommonModule,
-    PaymentModule,
     UploadsModule
   ],
   controllers: [],
