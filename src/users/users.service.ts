@@ -36,7 +36,7 @@ export class UserService {
         this.users.create({ email, password, role, countrySelect }),
       );
       const verification = await this.verifications.save(
-        this.verifications.create({
+        this.verifications.create({ 
           user,
         }),
       );
