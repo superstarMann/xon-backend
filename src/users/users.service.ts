@@ -46,7 +46,7 @@ export class UserService {
       return { ok: false, error: `${e}`};
     }
   }
-
+  
   async login({ email, password }: LoginInput): Promise<LoginOutput> {
     try {
       const user = await this.users.findOne(

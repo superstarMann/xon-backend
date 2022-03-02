@@ -1,4 +1,4 @@
-import { MiddlewareConsumer, Module, NestModule, RequestMethod } from '@nestjs/common';
+import { Module } from '@nestjs/common';
 import * as Joi from 'joi';
 import { ConfigModule } from '@nestjs/config';
 import { GraphQLModule } from '@nestjs/graphql';
@@ -55,6 +55,7 @@ import { UploadsModule } from './uploads/uploads.module';
       entities: [User, Verification, ShareMusle, Country, Dish, Order, OrderItem],
     }),
     GraphQLModule.forRoot({
+      
       introspection: true,
       installSubscriptionHandlers: true,
       autoSchemaFile: true,
